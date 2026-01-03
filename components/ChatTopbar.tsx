@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Wand2, BarChart3, Type, RefreshCw } from "lucide-react"
-
-type Mode = "prompt" | "title" | "analyze"
+import type { Mode } from "@/components/thumbnail/types"
 
 function CreditTooltip({
   credits,

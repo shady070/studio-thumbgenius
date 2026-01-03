@@ -86,6 +86,7 @@ export type UserMsg = {
   text: string
   createdAt: number
   meta?: MsgMeta
+  imageUrl?: string;
 }
 
 export type ChatMsg = UserMsg | AssistantImageMsg | AssistantTitleMsg | AssistantAnalysisMsg

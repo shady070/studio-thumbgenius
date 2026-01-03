@@ -285,10 +285,10 @@ export function ThumbnailChat() {
   const openEdit = async (assistantMessageId: string) => {
     if (!threadId) return
     const msg = msgs.find((m) => m.id === assistantMessageId)
-    if (!msg?.imageUrl) return
+    if (!msg || !("imageUrl" in msg) || !msg.imageUrl) return
 
     setEditMsgId(assistantMessageId)
-    setEditImageUrl(msg.imageUrl)
+    setEditImageUrl(msg.imageUrl as string)
     setDetectedText([])
     setDetectedSubject("")
     setEditOpen(true)

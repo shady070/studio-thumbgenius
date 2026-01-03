@@ -187,7 +187,7 @@ export function MessageList({
                     m.imageUrl
                       ? () => {
                           const link = document.createElement("a")
-                          link.href = m.imageUrl
+                          link.href = m.imageUrl ?? ""
                           link.download = "thumbnail.png"
                           link.click()
                         }

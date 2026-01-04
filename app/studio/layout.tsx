@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -22,7 +22,12 @@ export default async function Layout({
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_FRONTEND_URL ||
     process.env.NEXT_PUBLIC_VERCEL_URL && `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` ||
-    ""
+    (async () => {
+      const h = await headers()
+      const host = h.get("host")
+      if (!host) return ""
+      return `https://${host}`
+    })()
 
   const callMe = async () =>
     fetch(`${siteOrigin}/api/auth/me`, {

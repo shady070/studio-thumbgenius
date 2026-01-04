@@ -8,7 +8,7 @@ type Entitlement = {
 }
 
 export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const apiBase = "" // use Next API routes
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
   const paidVariantId =
     process.env.NEXT_PUBLIC_LS_PAID_VARIANT_ID ||
@@ -18,18 +18,17 @@ export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
   const [busy, setBusy] = React.useState(false)
 
   React.useEffect(() => {
-    if (!apiBase) return
-    fetch(`${apiBase}/billing/entitlement`, { credentials: "include" })
+    fetch(`/api/billing/entitlement`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setEntitlement(data.entitlement || null))
       .catch(() => {})
-  }, [apiBase])
+  }, [])
 
   const startCheckout = async (variantId?: string) => {
-    if (!apiBase || !variantId) return
+    if (!variantId) return
     setBusy(true)
     try {
-      const res = await fetch(`${apiBase}/billing/checkout`, {
+      const res = await fetch(`/api/billing/checkout`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

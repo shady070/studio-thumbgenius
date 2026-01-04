@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 
 export function AccountPage() {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const apiBase = "" // use Next proxy routes
   const variantId = process.env.NEXT_PUBLIC_LS_VARIANT_ID || ""
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
   const [entitlement, setEntitlement] = React.useState<any>(null)
@@ -14,22 +14,21 @@ export function AccountPage() {
   const [autoStarted, setAutoStarted] = React.useState(false)
 
   React.useEffect(() => {
-    if (!apiBase) return
-    fetch(`${apiBase}/billing/entitlement`, { credentials: "include" })
+    fetch(`/api/billing/entitlement`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setEntitlement(data.entitlement || null))
       .catch(() => {})
-  }, [apiBase])
+  }, [])
 
   const startCheckout = async (targetVariant?: string) => {
     const useVariant = targetVariant || variantId
-    if (!apiBase || !useVariant) {
+    if (!useVariant) {
       alert("Billing not configured")
       return
     }
     setLoading(true)
     try {
-      const res = await fetch(`${apiBase}/billing/checkout`, {
+      const res = await fetch(`/api/billing/checkout`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

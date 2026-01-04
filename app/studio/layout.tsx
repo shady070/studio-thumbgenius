@@ -18,8 +18,14 @@ export default async function Layout({
   children: React.ReactNode
 }) {
   const cookieHeader = await cookieHeaderFromRequest()
+  const siteOrigin =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_FRONTEND_URL ||
+    process.env.NEXT_PUBLIC_VERCEL_URL && `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` ||
+    ""
+
   const callMe = async () =>
-    fetch("/api/auth/me", {
+    fetch(`${siteOrigin}/api/auth/me`, {
       method: "GET",
       cache: "no-store",
       headers: { cookie: cookieHeader },
@@ -27,7 +33,7 @@ export default async function Layout({
 
   let res = await callMe()
   if (!res.ok) {
-    await fetch("/api/auth/refresh", {
+    await fetch(`${siteOrigin}/api/auth/refresh`, {
       method: "POST",
       cache: "no-store",
       headers: { cookie: cookieHeader },
@@ -38,7 +44,7 @@ export default async function Layout({
   if (!res.ok) redirect("/auth")
 
   // Require active entitlement before accessing studio
-  const entRes = await fetch("/api/billing/entitlement", {
+  const entRes = await fetch(`${siteOrigin}/api/billing/entitlement`, {
     method: "GET",
     cache: "no-store",
     headers: { cookie: cookieHeader },

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { cookies, headers } from "next/headers"
+import { cookies } from "next/headers"
 
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -18,19 +18,13 @@ export default async function Layout({
   children: React.ReactNode
 }) {
   const cookieHeader = await cookieHeaderFromRequest()
-  const siteOrigin =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_FRONTEND_URL ||
-    process.env.NEXT_PUBLIC_VERCEL_URL && `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` ||
-    (async () => {
-      const h = await headers()
-      const host = h.get("host")
-      if (!host) return ""
-      return `https://${host}`
-    })()
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE
+  if (!apiBase) {
+    redirect("/auth")
+  }
 
   const callMe = async () =>
-    fetch(`${siteOrigin}/api/auth/me`, {
+    fetch(`${apiBase}/auth/me`, {
       method: "GET",
       cache: "no-store",
       headers: { cookie: cookieHeader },
@@ -38,7 +32,7 @@ export default async function Layout({
 
   let res = await callMe()
   if (!res.ok) {
-    await fetch(`${siteOrigin}/api/auth/refresh`, {
+    await fetch(`${apiBase}/auth/refresh`, {
       method: "POST",
       cache: "no-store",
       headers: { cookie: cookieHeader },
@@ -49,7 +43,7 @@ export default async function Layout({
   if (!res.ok) redirect("/auth")
 
   // Require active entitlement before accessing studio
-  const entRes = await fetch(`${siteOrigin}/api/billing/entitlement`, {
+  const entRes = await fetch(`${apiBase}/billing/entitlement`, {
     method: "GET",
     cache: "no-store",
     headers: { cookie: cookieHeader },

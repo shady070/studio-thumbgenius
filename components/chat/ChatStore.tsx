@@ -118,7 +118,7 @@ async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const apiBase = "" // use Next.js API proxies
 
   const [threads, setThreads] = React.useState<ChatThread[]>([])
   const [activeId, setActiveId] = React.useState<string | null>(null)
@@ -138,7 +138,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 
   const refreshCredits = React.useCallback(async () => {
     if (!apiBase) return
-    const me = await jsonFetch<any>(`${apiBase}/auth/me`, { method: "GET" })
+    const me = await jsonFetch<any>(`${apiBase}/api/auth/me`, { method: "GET" })
     const c =
       (typeof me?.creditsLeft === "number" ? me.creditsLeft : undefined) ??
       (typeof me?.user?.creditsLeft === "number" ? me.user.creditsLeft : undefined)
@@ -149,7 +149,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
   const refreshThreads = React.useCallback(async () => {
     if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
 
-    const data = await jsonFetch<{ threads: any[] }>(`${apiBase}/chat/threads`, { method: "GET" })
+    const data = await jsonFetch<{ threads: any[] }>(`${apiBase}/api/chat/threads`, { method: "GET" })
     const next = (data.threads ?? []).map(mapThread)
 
     setThreads((prev) => {
@@ -167,7 +167,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     async (id: string) => {
       if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
 
-      const data = await jsonFetch<{ thread: any }>(`${apiBase}/chat/threads/${id}`, { method: "GET" })
+      const data = await jsonFetch<{ thread: any }>(`${apiBase}/api/chat/threads/${id}`, { method: "GET" })
       const t = data.thread
       const msgs = (t.messages ?? []).map(mapMsg)
 
@@ -191,7 +191,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     async (opts?: { title?: string; mode?: Mode }) => {
       if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
 
-      const data = await jsonFetch<{ thread: any }>(`${apiBase}/chat/threads`, {
+      const data = await jsonFetch<{ thread: any }>(`${apiBase}/api/chat/threads`, {
         method: "POST",
         body: JSON.stringify({
           title: opts?.title,
@@ -212,7 +212,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
       const nextTitle = title.trim() || defaultTitle()
 
-      const data = await jsonFetch<{ thread: any }>(`${apiBase}/chat/threads/${id}`, {
+      const data = await jsonFetch<{ thread: any }>(`${apiBase}/api/chat/threads/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ title: nextTitle }),
       })
@@ -228,7 +228,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     async (id: string) => {
       if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
 
-      await jsonFetch(`${apiBase}/chat/threads/${id}`, { method: "DELETE" })
+      await jsonFetch(`${apiBase}/api/chat/threads/${id}`, { method: "DELETE" })
 
       setThreads((prev) => prev.filter((t) => t.id !== id))
       setActiveId((cur) => (cur === id ? null : cur))
@@ -240,7 +240,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     async (id: string, mode: Mode) => {
       if (!apiBase) throw new Error("Missing NEXT_PUBLIC_API_BASE_URL")
 
-      const data = await jsonFetch<{ thread: any }>(`${apiBase}/chat/threads/${id}`, {
+      const data = await jsonFetch<{ thread: any }>(`${apiBase}/api/chat/threads/${id}`, {
         method: "PATCH",
         body: JSON.stringify({ mode }),
       })
@@ -267,7 +267,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       if (!cleaned) throw new Error("Empty prompt")
 
       const data = await jsonFetch<{ prompt: string; creditsLeft?: number }>(
-        `${apiBase}/chat/threads/${threadId}/enhance`,
+        `${apiBase}/api/chat/threads/${threadId}/enhance`,
         {
           method: "POST",
           body: JSON.stringify({ text: cleaned }),
@@ -286,7 +286,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       if (!cleaned) throw new Error("Empty idea")
 
       const data = await jsonFetch<{ titles: string[]; creditsLeft?: number }>(
-        `${apiBase}/chat/threads/${threadId}/titles`,
+        `${apiBase}/api/chat/threads/${threadId}/titles`,
         {
           method: "POST",
           body: JSON.stringify({ idea: cleaned }),
@@ -334,7 +334,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       )
 
       try {
-        const data = await jsonFetch<any>(`${apiBase}/chat/threads/${threadId}/prompt`, {
+        const data = await jsonFetch<any>(`${apiBase}/api/chat/threads/${threadId}/prompt`, {
           method: "POST",
           body: JSON.stringify({ text: cleaned, meta }),
         })

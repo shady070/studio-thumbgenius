@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || ""
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } | Promise<{ id: string }> }
+) {
   if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  const params = await Promise.resolve(context.params)
   const backendRes = await fetch(`${API_BASE}/chat/threads/${params.id}`, {
     method: "GET",
     headers: { cookie: req.headers.get("cookie") || "" },
@@ -13,8 +17,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(data, { status: backendRes.status })
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } | Promise<{ id: string }> }
+) {
   if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  const params = await Promise.resolve(context.params)
   const body = await req.json().catch(() => ({}))
   const backendRes = await fetch(`${API_BASE}/chat/threads/${params.id}`, {
     method: "PATCH",
@@ -29,8 +37,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(data, { status: backendRes.status })
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: { id: string } | Promise<{ id: string }> }
+) {
   if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  const params = await Promise.resolve(context.params)
   const backendRes = await fetch(`${API_BASE}/chat/threads/${params.id}`, {
     method: "DELETE",
     headers: { cookie: req.headers.get("cookie") || "" },

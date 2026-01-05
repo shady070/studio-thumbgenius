@@ -5,11 +5,16 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API
 function passSetCookie(backendRes: Response, nextRes: NextResponse) {
   // @ts-ignore
   const setCookies: string[] | undefined = backendRes.headers.getSetCookie?.()
-  if (setCookies?.length) {
-    for (const c of setCookies) nextRes.headers.append("Set-Cookie", c)
-  } else {
-    const single = backendRes.headers.get("set-cookie")
-    if (single) nextRes.headers.set("Set-Cookie", single)
+  const cookies = setCookies?.length
+    ? setCookies
+    : (() => {
+        const single = backendRes.headers.get("set-cookie")
+        return single ? [single] : []
+      })()
+
+  for (const c of cookies) {
+    const rewritten = c.replace(/; *Domain=[^;]+/gi, "")
+    nextRes.headers.append("Set-Cookie", rewritten)
   }
 }
 

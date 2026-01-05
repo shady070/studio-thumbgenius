@@ -13,7 +13,8 @@ function passSetCookie(backendRes: Response, nextRes: NextResponse) {
       })()
 
   for (const c of cookies) {
-    nextRes.headers.append("Set-Cookie", c)
+    const rewritten = c.replace(/; *Domain=[^;]+/gi, "")
+    nextRes.headers.append("Set-Cookie", rewritten)
   }
 }
 

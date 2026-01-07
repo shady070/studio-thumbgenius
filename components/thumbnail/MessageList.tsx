@@ -45,7 +45,9 @@ export function MessageList({
           <div key={m.id} className="flex justify-start">
             <div className="max-w-[82%] rounded-3xl bg-white/5 p-4 ring-1 ring-white/10">
               <div className="mb-3 flex items-center gap-2 text-xs text-white/70">
-                <div className="h-7 w-7 rounded-full bg-white/10 ring-1 ring-white/10" />
+                <div className="h-7 w-7 overflow-hidden rounded-full ring-1 ring-white/10 bg-white/5">
+                  <img src="/logo.svg" alt="ThumbGenius logo" className="h-full w-full object-contain" />
+                </div>
                 <span>ThumbGenius</span>
 
                 {m.status === "generating" ? (

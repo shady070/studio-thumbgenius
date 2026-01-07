@@ -10,10 +10,7 @@ type Entitlement = {
 export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
   const apiBase = "" // use Next API routes
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
-  const paidVariantId =
-    process.env.NEXT_PUBLIC_LS_PAID_VARIANT_ID ||
-    process.env.NEXT_PUBLIC_LS_VARIANT_ID ||
-    ""
+  const paidVariantId = process.env.NEXT_PUBLIC_LS_VARIANT_ID || ""
   const [entitlement, setEntitlement] = React.useState<Entitlement | null>(null)
   const [busy, setBusy] = React.useState(false)
 

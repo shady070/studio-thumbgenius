@@ -69,7 +69,7 @@ export function MessageList({
                   titles={
                     m.titles ??
                     (() => {
-                      if (typeof m.text !== "string") return []
+                      if (!("text" in m) || typeof m.text !== "string") return []
                       try {
                         const parsed = JSON.parse(m.text)
                         if (!Array.isArray(parsed)) return []

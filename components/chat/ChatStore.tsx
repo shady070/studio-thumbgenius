@@ -161,6 +161,13 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     setActiveId((cur) => (cur && next.some((t) => t.id === cur) ? cur : cur))
   }, [apiBase])
 
+  React.useEffect(() => {
+    refreshThreads().catch(() => {})
+    const onFocus = () => refreshThreads().catch(() => {})
+    window.addEventListener("focus", onFocus)
+    return () => window.removeEventListener("focus", onFocus)
+  }, [refreshThreads])
+
   const loadThread = React.useCallback(
     async (id: string) => {
       const data = await jsonFetch<{ thread: any }>(apiUrl(`/api/chat/threads/${id}`), { method: "GET" })

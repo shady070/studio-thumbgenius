@@ -93,6 +93,8 @@ export function ThumbnailChat() {
   const [analyzeTitle, setAnalyzeTitle] = React.useState("")
   const [analyzeYoutubeUrl, setAnalyzeYoutubeUrl] = React.useState("")
   const [enhanceBusy, setEnhanceBusy] = React.useState(false)
+  const [uiError, setUiError] = React.useState<string | null>(null)
+  const errorTimerRef = React.useRef<number | null>(null)
 
   const [persona, setPersona] = React.useState<Persona | null>(null)
   const [personaMode, setPersonaMode] = React.useState<"face" | "full">("face")
@@ -117,8 +119,7 @@ export function ThumbnailChat() {
   const viewportRef = React.useRef<HTMLDivElement | null>(null)
   const scrollViewportRef = React.useRef<HTMLDivElement | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
-  const uploadIntent = React.useRef<"analyze" | "remakeDialog" | null>(null)
-  const lastUploadRef = React.useRef<string | null>(null)
+  const uploadIntent = React.useRef<"remakeDialog" | null>(null)
 
   React.useEffect(() => {
     const el = viewportRef.current
@@ -138,6 +139,12 @@ export function ThumbnailChat() {
       el.scrollTop = el.scrollHeight
     })
   }, [msgs])
+
+  const pushError = React.useCallback((message: string) => {
+    setUiError(message)
+    if (errorTimerRef.current) window.clearTimeout(errorTimerRef.current)
+    errorTimerRef.current = window.setTimeout(() => setUiError(null), 5000)
+  }, [])
 
   const openFull = (url: string) => {
     setFullUrl(url)
@@ -192,7 +199,7 @@ export function ThumbnailChat() {
         refreshCredits().catch(() => {})
         return
       }
-      throw e
+      pushError(e?.message || "Failed to send prompt.")
     }
   }
 
@@ -204,72 +211,74 @@ export function ThumbnailChat() {
       fr.readAsDataURL(file)
     })
 
-  const doAnalyze = async (imageDataUrl?: string) => {
+  const doAnalyze = async () => {
     if (!threadId) return
     const youtube = analyzeYoutubeUrl.trim()
-    const img = imageDataUrl || lastUploadRef.current || null
-    if (!youtube && !img) {
-      alert("Add a YouTube URL or upload an image first.")
+    if (!youtube) {
+      pushError("Add a YouTube URL first.")
       return
     }
     const payloadMeta: any = {
       mode: "analyze",
       youtubeUrl: youtube || undefined,
-      imageUrl: youtube ? undefined : img,
       title: analyzeTitle || input || undefined,
     }
-    await sendPrompt(threadId, input.trim() || "Analyze thumbnail", payloadMeta)
-    refreshCredits().catch(() => {})
+    try {
+      await sendPrompt(threadId, input.trim() || "Analyze thumbnail", payloadMeta)
+      refreshCredits().catch(() => {})
+    } catch (err: any) {
+      pushError(err?.message || "Analyze failed")
+    }
   }
 
   const doRemakeYoutube = async (urlOverride?: string) => {
     if (!threadId) return
     const youtube = (urlOverride ?? analyzeYoutubeUrl).trim()
     if (!youtube) {
-      alert("Enter a YouTube URL to remake.")
+      pushError("Enter a YouTube URL to remake.")
       return
     }
     const promptText = remakePrompt.trim() || input.trim() || "Remake this thumbnail"
-    await sendPrompt(threadId, promptText, {
-      youtubeUrl: youtube,
-      personaId: persona?.id ?? null,
-      personaMode,
-    })
-    refreshCredits().catch(() => {})
+    try {
+      await sendPrompt(threadId, promptText, {
+        youtubeUrl: youtube,
+        personaId: persona?.id ?? null,
+        personaMode,
+      })
+      refreshCredits().catch(() => {})
+    } catch (err: any) {
+      pushError(err?.message || "Remake failed")
+    }
   }
 
   const doRemakeWithImage = async (dataUrl: string) => {
     if (!threadId) return
     if (!dataUrl) {
-      alert("Upload an image to remake.")
+      pushError("Upload an image to remake.")
       return
     }
     const promptText = remakePrompt.trim() || input.trim() || "Remake this thumbnail"
-    await sendPrompt(threadId, promptText, {
-      recreate: true,
-      imageUrl: dataUrl,
-      personaId: persona?.id ?? null,
-      personaMode,
-    })
-    refreshCredits().catch(() => {})
-  }
-
-  const triggerUpload = () => {
-    uploadIntent.current = "analyze"
-    fileInputRef.current?.click()
+    try {
+      await sendPrompt(threadId, promptText, {
+        recreate: true,
+        imageUrl: dataUrl,
+        personaId: persona?.id ?? null,
+        personaMode,
+      })
+      refreshCredits().catch(() => {})
+    } catch (err: any) {
+      pushError(err?.message || "Remake failed")
+    }
   }
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const dataUrl = await readFileAsDataUrl(file)
-    lastUploadRef.current = dataUrl
     const intent = uploadIntent.current
     uploadIntent.current = null
     e.target.value = ""
-    if (intent === "analyze") {
-      await doAnalyze(dataUrl)
-    } else if (intent === "remakeDialog") {
+    if (intent === "remakeDialog") {
       remakeImageDataUrl.current = dataUrl
       setRemakeImageName(file.name)
     }
@@ -372,7 +381,7 @@ export function ThumbnailChat() {
       refreshCredits().catch(() => {})
     } catch (err) {
       setMsgsForThread(msgs) // rollback
-      alert((err as any)?.message || "Failed to generate titles")
+      pushError((err as any)?.message || "Failed to generate titles")
     }
   }
 
@@ -380,7 +389,7 @@ export function ThumbnailChat() {
     if (!threadId) return
     const base = input.trim()
     if (!base) {
-      alert("Enter a prompt to enhance.")
+      pushError("Enter a prompt to enhance.")
       return
     }
     setEnhanceBusy(true)
@@ -389,7 +398,7 @@ export function ThumbnailChat() {
       setInput(improved)
       refreshCredits().catch(() => {})
     } catch (err: any) {
-      alert(err?.message || "Enhance failed")
+      pushError(err?.message || "Enhance failed")
     } finally {
       setEnhanceBusy(false)
     }
@@ -412,6 +421,11 @@ export function ThumbnailChat() {
               <ChatTopbar mode={mode} setMode={onChangeMode} onRemake={onRemake} creditsRemake={CREDITS.remake} />
 
               <div ref={scrollViewportRef} className="chat-scroll min-h-0 overflow-y-auto px-5 py-5 pr-3">
+                {uiError ? (
+                  <div className="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                    {uiError}
+                  </div>
+                ) : null}
                 {msgs.length === 0 ? (
                   mode === "prompt" ? (
                     <EmptyState />
@@ -448,11 +462,10 @@ export function ThumbnailChat() {
                 setAnalyzeTitle={setAnalyzeTitle}
                 analyzeYoutubeUrl={analyzeYoutubeUrl}
                 setAnalyzeYoutubeUrl={setAnalyzeYoutubeUrl}
-                onAnalyze={() => doAnalyze()}
-                onEnhance={onEnhancePrompt}
-                enhanceLoading={enhanceBusy}
-                onAnalyzeUpload={triggerUpload}
-              />
+              onAnalyze={() => doAnalyze()}
+              onEnhance={onEnhancePrompt}
+              enhanceLoading={enhanceBusy}
+            />
             </div>
           </Card>
         </div>
@@ -537,7 +550,7 @@ export function ThumbnailChat() {
                       setRemakeOpen(false)
                       return
                     }
-                    alert("Add a YouTube URL or upload an image.")
+                    pushError("Add a YouTube URL or upload an image.")
                   }}
                   className="bg-emerald-500 text-black hover:bg-emerald-400"
                 >

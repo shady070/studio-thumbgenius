@@ -6,24 +6,32 @@ import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 
 export function AccountPage() {
-  const apiBase = "" // use Next proxy routes
   const variantId = process.env.NEXT_PUBLIC_LS_VARIANT_ID || ""
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
-  const [entitlement, setEntitlement] = React.useState<any>(null)
+  const [entitlement, setEntitlement] = React.useState<any>(undefined)
+  const [entLoaded, setEntLoaded] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [autoStarted, setAutoStarted] = React.useState(false)
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     fetch(`/api/billing/entitlement`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => setEntitlement(data.entitlement || null))
-      .catch(() => {})
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Unable to load billing status.")
+        const data = await res.json()
+        setEntitlement(data.entitlement || null)
+      })
+      .catch(() => {
+        setErrorMsg("Unable to load billing status. Please refresh.")
+        setEntitlement(undefined)
+      })
+      .finally(() => setEntLoaded(true))
   }, [])
 
   const startCheckout = async (targetVariant?: string) => {
     const useVariant = targetVariant || variantId
     if (!useVariant) {
-      alert("Billing not configured")
+      setErrorMsg("Billing is not configured yet.")
       return
     }
     setLoading(true)
@@ -38,7 +46,7 @@ export function AccountPage() {
       if (!res.ok) throw new Error(data?.message || "Checkout failed")
       if (data.url) window.location.href = data.url
     } catch (err: any) {
-      alert(err?.message || "Checkout failed")
+      setErrorMsg(err?.message || "Checkout failed")
     } finally {
       setLoading(false)
     }
@@ -46,11 +54,11 @@ export function AccountPage() {
 
   // Auto-open checkout on first visit when no entitlement exists
   React.useEffect(() => {
-    if (!autoStarted && entitlement === null) {
+    if (!autoStarted && entLoaded && entitlement === null) {
       setAutoStarted(true)
       startCheckout().catch(() => {})
     }
-  }, [autoStarted, entitlement])
+  }, [autoStarted, entitlement, entLoaded])
 
   const plan = entitlement?.plan || "Free"
   const status = entitlement?.status || "active"
@@ -76,6 +84,11 @@ export function AccountPage() {
 
         <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <Card className="border-white/10 bg-white/5 p-6 text-white">
+            {errorMsg ? (
+              <div className="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                {errorMsg}
+              </div>
+            ) : null}
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-xs uppercase text-white/50">Plan</div>

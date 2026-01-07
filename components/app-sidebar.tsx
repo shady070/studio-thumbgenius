@@ -82,7 +82,9 @@ export function AppSidebar() {
         <SidebarHeader className="gap-3 p-3 bg-black/20">
           <div className="flex items-center justify-between">
             <Link href="/studio" className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/25" />
+              <div className="h-7 w-7 overflow-hidden rounded-md ring-1 ring-white/10 bg-white/5">
+                <img src="/logo.svg" alt="ThumbGenius logo" className="h-full w-full object-contain" />
+              </div>
               <span className="text-sm font-semibold tracking-tight text-white">ThumbGenius</span>
             </Link>
             {state === "expanded" && (

@@ -38,7 +38,10 @@ type ChatStoreApi = {
   creditsLeft: number | null
   refreshCredits: () => Promise<void>
   enhancePrompt: (threadId: string, text: string) => Promise<string>
-  generateTitles: (threadId: string, idea: string) => Promise<string[]>
+  generateTitles: (
+    threadId: string,
+    idea: string
+  ) => Promise<{ titles: string[]; userMsg?: ChatMsg; assistantMsg?: ChatMsg }>
 
   getThreadById: (id: string) => ChatThread | null
   setActive: (id: string) => void
@@ -86,6 +89,20 @@ function mapThread(t: any): ChatThread {
 }
 
 function mapMsg(m: any): ChatMsg {
+  let titles: { id: string; text: string }[] | undefined
+  if (m.kind === "titles" && typeof m.text === "string") {
+    try {
+      const parsed = JSON.parse(m.text)
+      if (Array.isArray(parsed)) {
+        titles = parsed.map((t, i) =>
+          typeof t === "string" ? { id: `${m.id}_${i}`, text: t } : { id: `${m.id}_${i}`, text: t?.text ?? "" }
+        )
+      }
+    } catch {
+      titles = undefined
+    }
+  }
+
   return {
     id: m.id,
     role: m.role,
@@ -98,6 +115,7 @@ function mapMsg(m: any): ChatMsg {
     meta: m.metaJson ?? undefined,
     createdAt: new Date(m.createdAt).getTime(),
     promptId: m.id,
+    titles,
   } as any
 }
 
@@ -285,7 +303,12 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
       const cleaned = (idea ?? "").trim()
       if (!cleaned) throw new Error("Empty idea")
 
-      const data = await jsonFetch<{ titles: string[]; creditsLeft?: number }>(
+      const data = await jsonFetch<{
+        titles: string[]
+        creditsLeft?: number
+        userMsg?: any
+        assistantMsg?: any
+      }>(
         apiUrl(`/api/chat/threads/${threadId}/titles`),
         {
           method: "POST",
@@ -293,7 +316,11 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
         }
       )
       if (typeof data?.creditsLeft === "number") setCreditsLeft(data.creditsLeft)
-      return data.titles ?? []
+      return {
+        titles: data.titles ?? [],
+        userMsg: data.userMsg ? mapMsg(data.userMsg) : undefined,
+        assistantMsg: data.assistantMsg ? mapMsg(data.assistantMsg) : undefined,
+      }
     },
     [apiBase]
   )

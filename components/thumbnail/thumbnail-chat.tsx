@@ -391,11 +391,15 @@ export function ThumbnailChat() {
     setMsgsForThread([...msgs, userMsg, botMsg])
 
     try {
-      const titles = await generateTitles(threadId, idea)
-      const rows = titles.map((t) => ({ id: uid(), text: t }))
-      setMsgsForThread(
-        [...msgs, userMsg, { ...botMsg, status: "done", progress: 100, titles: rows }]
-      )
+      const result = await generateTitles(threadId, idea)
+      if (result.userMsg && result.assistantMsg) {
+        setMsgsForThread([...msgs, result.userMsg, result.assistantMsg])
+      } else {
+        const rows = result.titles.map((t) => ({ id: uid(), text: t }))
+        setMsgsForThread(
+          [...msgs, userMsg, { ...botMsg, status: "done", progress: 100, titles: rows }]
+        )
+      }
       refreshCredits().catch(() => {})
     } catch (err) {
       setMsgsForThread(msgs) // rollback

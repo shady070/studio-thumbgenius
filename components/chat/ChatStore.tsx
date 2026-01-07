@@ -359,18 +359,22 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
 
         refreshThreads().catch(() => {})
       } catch (e) {
-        // rollback optimistic
-        setThreads((prev) =>
-          prev.map((t) =>
-            t.id === threadId
-              ? { ...t, messages: (t.messages ?? []).filter((m: any) => m.id !== tempU && m.id !== tempA) }
-              : t
+        try {
+          await loadThread(threadId)
+        } catch {
+          // rollback optimistic
+          setThreads((prev) =>
+            prev.map((t) =>
+              t.id === threadId
+                ? { ...t, messages: (t.messages ?? []).filter((m: any) => m.id !== tempU && m.id !== tempA) }
+                : t
+            )
           )
-        )
+        }
         throw e
       }
     },
-    [apiBase, refreshThreads]
+    [apiBase, refreshThreads, loadThread]
   )
 
   const oneClickFix = React.useCallback(

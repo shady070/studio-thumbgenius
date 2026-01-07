@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 
-type Mode = "login" | "signup"
+type Mode = "login" | "signup" | "verify"
 
 export default function AuthPage() {
   const router = useRouter()
@@ -12,11 +12,14 @@ export default function AuthPage() {
   const [email, setEmail] = useState("")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [code, setCode] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const endpoint = useMemo(() => {
-    return mode === "login" ? "/api/auth/login" : "/api/auth/register"
+    if (mode === "login") return "/api/auth/login"
+    if (mode === "signup") return "/api/auth/register"
+    return "/api/auth/verify"
   }, [mode])
 
   async function onSubmit(e: React.FormEvent) {
@@ -25,10 +28,12 @@ export default function AuthPage() {
 
     setLoading(true)
     try {
-      const body =
-        mode === "login"
-          ? { email, password }
-          : { email, username: username || undefined, password }
+    const body =
+      mode === "login"
+        ? { email, password }
+        : mode === "signup"
+        ? { email, username: username || undefined, password }
+        : { email, code }
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -40,7 +45,19 @@ export default function AuthPage() {
       const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
-        setError(data?.message || data?.error || "Auth failed")
+        const msg = data?.message || data?.error || "Auth failed"
+        if (data?.code === "EMAIL_NOT_VERIFIED" || msg.toLowerCase().includes("not verified")) {
+          setMode("verify")
+          setError("Verify your email to continue.")
+          return
+        }
+        setError(msg)
+        return
+      }
+
+      if (data?.requiresVerification || mode === "signup") {
+        setMode("verify")
+        setError("We sent a verification code to your email.")
         return
       }
 
@@ -53,12 +70,42 @@ export default function AuthPage() {
     }
   }
 
+  async function onResend() {
+    if (!email) {
+      setError("Enter your email first.")
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/auth/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.message || "Failed to resend code")
+      setError("Verification code sent.")
+    } catch (err: any) {
+      setError(err?.message || "Failed to resend code")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h1 style={styles.title}>{mode === "login" ? "Login" : "Create account"}</h1>
+        <h1 style={styles.title}>
+          {mode === "login" ? "Login" : mode === "signup" ? "Create account" : "Verify email"}
+        </h1>
         <p style={styles.subtitle}>
-          {mode === "login" ? "Sign in to continue to Studio." : "Sign up to start using the app."}
+          {mode === "login"
+            ? "Sign in to continue to Studio."
+            : mode === "signup"
+            ? "Sign up to start using the app."
+            : "Enter the code we sent to your email."}
         </p>
 
         <form onSubmit={onSubmit} style={styles.form}>
@@ -89,28 +136,60 @@ export default function AuthPage() {
             </label>
           )}
 
-          <label style={styles.label}>
-            Password
-            <input
-              style={styles.input}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              placeholder="••••••••"
-            />
-          </label>
+          {mode !== "verify" ? (
+            <label style={styles.label}>
+              Password
+              <input
+                style={styles.input}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                placeholder="••••••••"
+              />
+            </label>
+          ) : (
+            <label style={styles.label}>
+              Verification code
+              <input
+                style={styles.input}
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                required
+                placeholder="123456"
+                inputMode="numeric"
+              />
+            </label>
+          )}
 
           {error && <div style={styles.error}>{error}</div>}
 
           <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? "Please wait..." : mode === "login" ? "Login" : "Sign up"}
+            {loading
+              ? "Please wait..."
+              : mode === "login"
+              ? "Login"
+              : mode === "signup"
+              ? "Sign up"
+              : "Verify"}
           </button>
         </form>
 
         <div style={styles.footer}>
-          {mode === "login" ? (
+          {mode === "verify" ? (
+            <>
+              Didn’t get a code?{" "}
+              <button style={styles.linkBtn} onClick={onResend} type="button">
+                Resend
+              </button>
+              <span style={{ margin: "0 8px" }}>•</span>
+              <button style={styles.linkBtn} onClick={() => setMode("login")} type="button">
+                Back to login
+              </button>
+            </>
+          ) : mode === "login" ? (
             <>
               Don’t have an account?{" "}
               <button style={styles.linkBtn} onClick={() => setMode("signup")} type="button">

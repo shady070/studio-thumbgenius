@@ -140,6 +140,19 @@ export function ThumbnailChat() {
     })
   }, [msgs])
 
+  const formatError = React.useCallback((err: any, fallback: string) => {
+    const raw = String(err?.message || err || "").trim()
+    if (!raw) return fallback
+    const lower = raw.toLowerCase()
+    if (lower.includes("not enough credits")) {
+      return "Not enough credits. Please top up in Account."
+    }
+    if (lower.includes("unauthorized") || lower.includes("forbidden")) {
+      return "Session expired. Please log in again."
+    }
+    return raw
+  }, [])
+
   const pushError = React.useCallback((message: string) => {
     setUiError(message)
     if (errorTimerRef.current) window.clearTimeout(errorTimerRef.current)
@@ -199,7 +212,7 @@ export function ThumbnailChat() {
         refreshCredits().catch(() => {})
         return
       }
-      pushError(e?.message || "Failed to send prompt.")
+      pushError(formatError(e, "Failed to send prompt."))
     }
   }
 
@@ -227,7 +240,7 @@ export function ThumbnailChat() {
       await sendPrompt(threadId, input.trim() || "Analyze thumbnail", payloadMeta)
       refreshCredits().catch(() => {})
     } catch (err: any) {
-      pushError(err?.message || "Analyze failed")
+      pushError(formatError(err, "Analyze failed"))
     }
   }
 
@@ -247,7 +260,7 @@ export function ThumbnailChat() {
       })
       refreshCredits().catch(() => {})
     } catch (err: any) {
-      pushError(err?.message || "Remake failed")
+      pushError(formatError(err, "Remake failed"))
     }
   }
 
@@ -267,7 +280,7 @@ export function ThumbnailChat() {
       })
       refreshCredits().catch(() => {})
     } catch (err: any) {
-      pushError(err?.message || "Remake failed")
+      pushError(formatError(err, "Remake failed"))
     }
   }
 
@@ -381,7 +394,7 @@ export function ThumbnailChat() {
       refreshCredits().catch(() => {})
     } catch (err) {
       setMsgsForThread(msgs) // rollback
-      pushError((err as any)?.message || "Failed to generate titles")
+      pushError(formatError(err, "Failed to generate titles"))
     }
   }
 
@@ -398,7 +411,7 @@ export function ThumbnailChat() {
       setInput(improved)
       refreshCredits().catch(() => {})
     } catch (err: any) {
-      pushError(err?.message || "Enhance failed")
+      pushError(formatError(err, "Enhance failed"))
     } finally {
       setEnhanceBusy(false)
     }

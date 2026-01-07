@@ -89,24 +89,29 @@ function mapThread(t: any): ChatThread {
 }
 
 function mapMsg(m: any): ChatMsg {
-  let titles: { id: string; text: string }[] | undefined
-  if (m.kind === "titles" && typeof m.text === "string") {
+  let inferredTitles: { id: string; text: string }[] | undefined
+  if (typeof m.text === "string") {
     try {
       const parsed = JSON.parse(m.text)
       if (Array.isArray(parsed)) {
-        titles = parsed.map((t, i) =>
+        inferredTitles = parsed.map((t, i) =>
           typeof t === "string" ? { id: `${m.id}_${i}`, text: t } : { id: `${m.id}_${i}`, text: t?.text ?? "" }
         )
       }
     } catch {
-      titles = undefined
+      inferredTitles = undefined
     }
+  }
+
+  let titles: { id: string; text: string }[] | undefined
+  if (m.kind === "titles") {
+    titles = inferredTitles
   }
 
   return {
     id: m.id,
     role: m.role,
-    kind: m.kind ?? undefined,
+    kind: m.kind ?? (inferredTitles ? "titles" : undefined),
     text: m.text ?? undefined,
     imageUrl: m.imageUrl ?? undefined,
     score: m.score ?? undefined,
@@ -115,7 +120,7 @@ function mapMsg(m: any): ChatMsg {
     meta: m.metaJson ?? undefined,
     createdAt: new Date(m.createdAt).getTime(),
     promptId: m.id,
-    titles,
+    titles: titles ?? inferredTitles,
   } as any
 }
 

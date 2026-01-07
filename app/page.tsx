@@ -2,16 +2,23 @@
 
 import Link from "next/link"
 
-const heroTiles = [
-  { title: "Faceless channel pack", tag: "Trending", hue: "from-emerald-400/40 to-teal-600/20" },
-  { title: "MrBeast style remix", tag: "Persona ready", hue: "from-purple-400/40 to-sky-500/20" },
-  { title: "AI documentary set", tag: "Fresh", hue: "from-amber-400/40 to-red-500/20" },
-  { title: "Mobile-first shorts", tag: "Hot", hue: "from-cyan-400/40 to-blue-600/20" },
+const sampleImages = [
+  "1-01 (1).png",
+  "1-01 (2).png",
+  "1-01 (3).png",
+  "1-01 (4).png",
+  "1-01 (6).png",
+  "1-01 (7).png",
+  "1-01 (8).png",
+  "1-01 (9).png",
+  "1-01 (10).png",
+  "1-01 (11).png",
+  "1-01 (12).png",
 ]
 
 const workflows = [
   { title: "Remake any thumbnail", desc: "Paste a YouTube link or upload. Swap faces, rewrite text, match style.", cta: "Remake now" },
-  { title: "Face-perfect personas", desc: "Lock identity with InsightFace + GFPGAN so every render matches your talent.", cta: "Create persona" },
+  { title: "Face-perfect personas", desc: "Lock identity across renders so every thumbnail matches your talent.", cta: "Create persona" },
   { title: "Instant analysis", desc: "OCR, elements, and subject detection so you know what to fix before you spend credits.", cta: "Analyze thumbnail" },
   { title: "Prompt enhancer", desc: "Rewrite prompts into high-converting thumbnail briefs in one tap.", cta: "Enhance prompt" },
 ]
@@ -25,33 +32,57 @@ const steps = [
 
 const plans = [
   {
-    name: "Free Trial",
-    price: "$0",
-    highlight: "7 days · 100 credits",
-    features: ["Remake / Generate", "Persona face swap", "Analyze + OCR", "Prompt enhancer"],
-    cta: "Start free",
-  },
-  {
-    name: "Creator",
-    price: "$19/mo",
+    name: "Premium",
+    price: "$9.99 / mo",
     highlight: "500 credits monthly",
-    features: ["All trial features", "Faster renders", "Priority support", "Top-up anytime"],
-    cta: "Go Creator",
-  },
-  {
-    name: "Studio",
-    price: "Custom",
-    highlight: "Teams & SLAs",
-    features: ["Seat-based pricing", "Usage pooling", "Webhook access", "White-glove onboarding"],
-    cta: "Talk to us",
+    features: [
+      "Generate + Remake",
+      "Persona face swap",
+      "Analyze + OCR",
+      "Prompt enhancer",
+      "Title generator",
+      "Recreate from YouTube",
+      "Top-up credits anytime",
+      "Priority rendering",
+    ],
+    cta: "Start premium",
   },
 ]
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-[#050709] text-white">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-20 border-b border-white/10 bg-[#050709]/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 overflow-hidden rounded-lg ring-1 ring-white/10 bg-white/5">
+              <img src="/logo.svg" alt="ThumbGenius logo" className="h-full w-full object-contain" />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-white">ThumbGenius</span>
+          </Link>
+          <div className="hidden items-center gap-5 text-sm text-white/70 md:flex">
+            <a href="#workflow" className="hover:text-white">Workflow</a>
+            <a href="#how" className="hover:text-white">How it works</a>
+            <a href="#pricing" className="hover:text-white">Pricing</a>
+            <a href="#cta" className="hover:text-white">Get started</a>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/auth"
+              className="rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold text-black shadow-lg shadow-emerald-500/30 hover:bg-emerald-400"
+            >
+              Start free
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-600/20 via-[#0a0f14] to-[#050709] px-4 pb-16 pt-20">
+      <section
+        id="hero"
+        className="relative overflow-hidden bg-gradient-to-b from-emerald-600/20 via-[#0a0f14] to-[#050709] px-4 pb-16 pt-20"
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(16,185,129,0.25),transparent_45%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.2),transparent_45%)]" />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
@@ -78,18 +109,23 @@ export default function LandingPage() {
               Open studio
             </Link>
           </div>
-
-          <div className="mt-12 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {heroTiles.map((tile, i) => (
-              <div
-                key={i}
-                className={`rounded-2xl border border-white/10 bg-gradient-to-br ${tile.hue} p-4 text-left shadow-lg shadow-black/30`}
-              >
-                <div className="text-xs text-emerald-200">{tile.tag}</div>
-                <div className="mt-1 text-lg font-semibold text-white/90">{tile.title}</div>
-                <div className="mt-3 h-20 rounded-xl bg-black/30" />
-              </div>
-            ))}
+          <div className="mt-12 w-full overflow-hidden rounded-3xl border border-white/10 bg-white/5 py-4">
+            <div
+              className="flex w-max items-center gap-4 px-4"
+              style={{ animation: "marquee 40s linear infinite" }}
+            >
+              {[...sampleImages, ...sampleImages].map((name, i) => {
+                const url = `/landing-samples/${encodeURIComponent(name)}`
+                return (
+                  <div
+                    key={`${name}-${i}`}
+                    className="h-52 w-80 shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10"
+                  >
+                    <img src={url} alt="Thumbnail sample" className="h-full w-full object-contain" />
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/70">
@@ -108,7 +144,7 @@ export default function LandingPage() {
       </section>
 
       {/* Workflows */}
-      <section className="relative bg-[#050709] px-4 py-16">
+      <section id="workflow" className="relative bg-[#050709] px-4 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -139,7 +175,7 @@ export default function LandingPage() {
       </section>
 
       {/* Steps */}
-      <section className="relative bg-gradient-to-b from-[#050709] to-[#0a1016] px-4 py-16">
+      <section id="how" className="relative bg-gradient-to-b from-[#050709] to-[#0a1016] px-4 py-16">
         <div className="mx-auto max-w-6xl">
           <p className="text-xs uppercase tracking-widest text-emerald-300">How it works</p>
           <h3 className="text-3xl font-semibold text-white">Turn broken thumbnails into winners</h3>
@@ -159,11 +195,11 @@ export default function LandingPage() {
       </section>
 
       {/* Plans */}
-      <section className="relative bg-[#050709] px-4 py-16">
+      <section id="pricing" className="relative bg-[#050709] px-4 py-16">
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-xs uppercase tracking-widest text-emerald-300">Pricing</p>
           <h3 className="text-3xl font-semibold text-white">Start with a free trial, scale when you’re ready</h3>
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mt-10 grid gap-4 md:grid-cols-1">
             {plans.map((plan, idx) => (
               <div
                 key={idx}
@@ -193,7 +229,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-emerald-600/20 via-[#0a1016] to-[#050709] px-4 py-14">
+      <section id="cta" className="relative overflow-hidden bg-gradient-to-r from-emerald-600/20 via-[#0a1016] to-[#050709] px-4 py-14">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.2),transparent_40%)]" />
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
           <h4 className="text-3xl font-semibold text-white">Ship thumbnails that get clicked.</h4>
@@ -216,6 +252,37 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 bg-[#050709] px-4 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 overflow-hidden rounded-lg ring-1 ring-white/10 bg-white/5">
+              <img src="/logo.svg" alt="ThumbGenius logo" className="h-full w-full object-contain" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">ThumbGenius</div>
+              <div className="text-xs text-white/50">Contact: malikx029squaddie@gmail.com</div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
+            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
+            <a href="#hero" className="hover:text-white">Back to top</a>
+          </div>
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </main>
   )
 }

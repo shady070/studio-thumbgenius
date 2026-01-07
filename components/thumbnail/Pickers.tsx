@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/command"
 
 import { DEMO_PERSONAS, DEMO_STYLES, Persona, Style } from "./types"
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export function getPersonaName(id: string, list?: Persona[]) {
   const all = list ?? DEMO_PERSONAS
@@ -51,8 +50,7 @@ export function PickerChipPersona({
   const [newFile, setNewFile] = React.useState<File | null>(null)
 
   React.useEffect(() => {
-    if (!API_BASE) return
-    fetch(`${API_BASE}/personas`, { credentials: "include" })
+    fetch("/api/personas", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         const personas = (data?.personas || data) as any[]
@@ -67,12 +65,12 @@ export function PickerChipPersona({
   }, [])
 
   const uploadPersona = async (file: File, name: string) => {
-    if (!API_BASE || !file || !name.trim()) return
+    if (!file || !name.trim()) return
     const fd = new FormData()
     fd.append("file", file)
     fd.append("name", name.trim())
     try {
-      const res = await fetch(`${API_BASE}/personas/upload`, {
+      const res = await fetch("/api/personas/upload", {
         method: "POST",
         body: fd,
         credentials: "include",

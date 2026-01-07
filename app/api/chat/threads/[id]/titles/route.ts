@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getApiBase } from "../../../../_lib/apiBase"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || ""
+const API_BASE = getApiBase()
 
 export async function POST(
   req: NextRequest,
   context: { params: { id: string } | Promise<{ id: string }> }
 ) {
-  if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  if (!API_BASE) return NextResponse.json({ error: "Missing API_BASE_URL" }, { status: 500 })
   const params = await Promise.resolve(context.params)
   const body = await req.json().catch(() => ({}))
   const backendRes = await fetch(`${API_BASE}/chat/threads/${params.id}/titles`, {

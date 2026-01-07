@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getApiBase } from "../../_lib/apiBase"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE || ""
+const API_BASE = getApiBase()
 
 export async function GET(req: NextRequest) {
-  if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  if (!API_BASE) return NextResponse.json({ error: "Missing API_BASE_URL" }, { status: 500 })
   const backendRes = await fetch(`${API_BASE}/chat/threads`, {
     method: "GET",
     headers: { cookie: req.headers.get("cookie") || "" },
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!API_BASE) return NextResponse.json({ error: "Missing API base" }, { status: 500 })
+  if (!API_BASE) return NextResponse.json({ error: "Missing API_BASE_URL" }, { status: 500 })
   const body = await req.json().catch(() => ({}))
   const backendRes = await fetch(`${API_BASE}/chat/threads`, {
     method: "POST",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
+import { getApiBase } from "../../_lib/apiBase"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL
+const API_BASE = getApiBase()
 
 function passSetCookie(backendRes: Response, nextRes: NextResponse) {
   // @ts-ignore
@@ -19,9 +20,7 @@ function passSetCookie(backendRes: Response, nextRes: NextResponse) {
 }
 
 export async function POST(req: Request) {
-  if (!API_BASE) {
-    return NextResponse.json({ ok: false, error: "Missing NEXT_PUBLIC_API_BASE_URL" }, { status: 500 })
-  }
+  if (!API_BASE) return NextResponse.json({ ok: false, error: "Missing API_BASE_URL" }, { status: 500 })
 
   const body = await req.json().catch(() => ({}))
 

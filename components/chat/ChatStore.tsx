@@ -113,7 +113,13 @@ async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   })
 
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data?.message || data?.error || "Request failed")
+  if (!res.ok) {
+    const msg =
+      (Array.isArray(data?.message) ? data.message.join(", ") : data?.message) ||
+      data?.error ||
+      `Request failed (${res.status})`
+    throw new Error(msg)
+  }
   return data as T
 }
 

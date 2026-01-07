@@ -203,14 +203,19 @@ export function ThumbnailChat() {
     } catch (e: any) {
       if (String(e?.message || "").toLowerCase().includes("thread not found")) {
         await loadThread(threadId).catch(() => {})
-        await sendPrompt(threadId, text, {
-          personaId: persona?.id ?? null,
-          personaMode,
-          styleId: style?.id ?? null,
-          mode,
-        })
-        refreshCredits().catch(() => {})
-        return
+        try {
+          await sendPrompt(threadId, text, {
+            personaId: persona?.id ?? null,
+            personaMode,
+            styleId: style?.id ?? null,
+            mode,
+          })
+          refreshCredits().catch(() => {})
+          return
+        } catch (err: any) {
+          pushError(formatError(err, "Failed to send prompt."))
+          return
+        }
       }
       pushError(formatError(e, "Failed to send prompt."))
     }
@@ -434,11 +439,6 @@ export function ThumbnailChat() {
               <ChatTopbar mode={mode} setMode={onChangeMode} onRemake={onRemake} creditsRemake={CREDITS.remake} />
 
               <div ref={scrollViewportRef} className="chat-scroll min-h-0 overflow-y-auto px-5 py-5 pr-3">
-                {uiError ? (
-                  <div className="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-                    {uiError}
-                  </div>
-                ) : null}
                 {msgs.length === 0 ? (
                   mode === "prompt" ? (
                     <EmptyState />
@@ -457,28 +457,35 @@ export function ThumbnailChat() {
                 )}
               </div>
 
-              <Composer
-                mode={mode}
-                persona={persona}
-                setPersona={setPersona}
-                personaMode={personaMode}
-                setPersonaMode={setPersonaMode}
-                style={style}
-              setStyle={setStyle}
-              input={input}
-              setInput={setInput}
-              onSend={send}
-              titleIdea={titleIdea}
-              setTitleIdea={setTitleIdea}
-              onGenerateTitles={generateTitlesHandler}
-              analyzeTitle={analyzeTitle}
-                setAnalyzeTitle={setAnalyzeTitle}
-                analyzeYoutubeUrl={analyzeYoutubeUrl}
-                setAnalyzeYoutubeUrl={setAnalyzeYoutubeUrl}
-              onAnalyze={() => doAnalyze()}
-              onEnhance={onEnhancePrompt}
-              enhanceLoading={enhanceBusy}
-            />
+              <div>
+                {uiError ? (
+                  <div className="mb-3 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                    {uiError}
+                  </div>
+                ) : null}
+                <Composer
+                  mode={mode}
+                  persona={persona}
+                  setPersona={setPersona}
+                  personaMode={personaMode}
+                  setPersonaMode={setPersonaMode}
+                  style={style}
+                  setStyle={setStyle}
+                  input={input}
+                  setInput={setInput}
+                  onSend={send}
+                  titleIdea={titleIdea}
+                  setTitleIdea={setTitleIdea}
+                  onGenerateTitles={generateTitlesHandler}
+                  analyzeTitle={analyzeTitle}
+                  setAnalyzeTitle={setAnalyzeTitle}
+                  analyzeYoutubeUrl={analyzeYoutubeUrl}
+                  setAnalyzeYoutubeUrl={setAnalyzeYoutubeUrl}
+                  onAnalyze={() => doAnalyze()}
+                  onEnhance={onEnhancePrompt}
+                  enhanceLoading={enhanceBusy}
+                />
+              </div>
             </div>
           </Card>
         </div>

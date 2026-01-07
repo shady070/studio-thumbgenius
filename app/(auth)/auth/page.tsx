@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
 type Mode = "login" | "signup" | "verify"
 
@@ -95,174 +99,186 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>
-          {mode === "login" ? "Login" : mode === "signup" ? "Create account" : "Verify email"}
-        </h1>
-        <p style={styles.subtitle}>
-          {mode === "login"
-            ? "Sign in to continue to Studio."
-            : mode === "signup"
-            ? "Sign up to start using the app."
-            : "Enter the code we sent to your email."}
-        </p>
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#0b0b0d] text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-emerald-500/15 blur-[120px]" />
+        <div className="absolute bottom-[-120px] right-[-120px] h-96 w-96 rounded-full bg-blue-500/15 blur-[120px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_45%)]" />
+      </div>
 
-        <form onSubmit={onSubmit} style={styles.form}>
-          <label style={styles.label}>
-            Email
-            <input
-              style={styles.input}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              placeholder="you@example.com"
-            />
-          </label>
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-12">
+        <Card className="w-full max-w-lg border-white/10 bg-white/5 p-6 text-white shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 overflow-hidden rounded-xl ring-1 ring-white/10 bg-white/5">
+                <img src="/logo.svg" alt="ThumbGenius logo" className="h-full w-full object-contain" />
+              </div>
+              <div>
+                <div className="text-sm text-white/50">ThumbGenius</div>
+                <div className="text-lg font-semibold">Studio Access</div>
+              </div>
+            </div>
 
-          {mode === "signup" && (
-            <label style={styles.label}>
-              Username (optional)
-              <input
-                style={styles.input}
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                placeholder="yourname"
-              />
-            </label>
-          )}
+            {mode !== "verify" ? (
+              <div className="flex rounded-full bg-white/5 p-1 ring-1 ring-white/10">
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-semibold transition",
+                    mode === "login" ? "bg-white/15 text-white" : "text-white/50 hover:text-white"
+                  )}
+                  onClick={() => setMode("login")}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-semibold transition",
+                    mode === "signup" ? "bg-white/15 text-white" : "text-white/50 hover:text-white"
+                  )}
+                  onClick={() => setMode("signup")}
+                >
+                  Sign up
+                </button>
+              </div>
+            ) : null}
+          </div>
 
-          {mode !== "verify" ? (
-            <label style={styles.label}>
-              Password
-              <input
-                style={styles.input}
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+          <div className="mt-6">
+            <h1 className="text-2xl font-semibold">
+              {mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : "Verify your email"}
+            </h1>
+            <p className="mt-2 text-sm text-white/60">
+              {mode === "login"
+                ? "Sign in to continue to the studio."
+                : mode === "signup"
+                ? "Start your free trial once your email is verified."
+                : "Enter the 6-digit code we sent to your inbox."}
+            </p>
+          </div>
+
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs uppercase text-white/50">Email</label>
+              <Input
+                className="h-11 rounded-xl border-white/10 bg-black/40 text-white placeholder:text-white/35"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-                placeholder="••••••••"
+                autoComplete="email"
+                placeholder="you@example.com"
               />
-            </label>
-          ) : (
-            <label style={styles.label}>
-              Verification code
-              <input
-                style={styles.input}
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-                placeholder="123456"
-                inputMode="numeric"
-              />
-            </label>
-          )}
+            </div>
 
-          {error && <div style={styles.error}>{error}</div>}
+            {mode === "signup" ? (
+              <div className="space-y-2">
+                <label className="text-xs uppercase text-white/50">Username (optional)</label>
+                <Input
+                  className="h-11 rounded-xl border-white/10 bg-black/40 text-white placeholder:text-white/35"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  placeholder="Your name"
+                />
+              </div>
+            ) : null}
 
-          <button style={styles.button} type="submit" disabled={loading}>
-            {loading
-              ? "Please wait..."
-              : mode === "login"
-              ? "Login"
-              : mode === "signup"
-              ? "Sign up"
-              : "Verify"}
-          </button>
-        </form>
+            {mode !== "verify" ? (
+              <div className="space-y-2">
+                <label className="text-xs uppercase text-white/50">Password</label>
+                <Input
+                  className="h-11 rounded-xl border-white/10 bg-black/40 text-white placeholder:text-white/35"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  placeholder="••••••••"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-xs uppercase text-white/50">Verification code</label>
+                <Input
+                  className="h-11 rounded-xl border-white/10 bg-black/40 text-white placeholder:text-white/35"
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  required
+                  placeholder="123456"
+                  inputMode="numeric"
+                />
+              </div>
+            )}
 
-        <div style={styles.footer}>
-          {mode === "verify" ? (
-            <>
-              Didn’t get a code?{" "}
-              <button style={styles.linkBtn} onClick={onResend} type="button">
-                Resend
-              </button>
-              <span style={{ margin: "0 8px" }}>•</span>
-              <button style={styles.linkBtn} onClick={() => setMode("login")} type="button">
-                Back to login
-              </button>
-            </>
-          ) : mode === "login" ? (
-            <>
-              Don’t have an account?{" "}
-              <button style={styles.linkBtn} onClick={() => setMode("signup")} type="button">
-                Sign up
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <button style={styles.linkBtn} onClick={() => setMode("login")} type="button">
-                Login
-              </button>
-            </>
-          )}
-        </div>
+            {error ? (
+              <div className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+                {error}
+              </div>
+            ) : null}
+
+            <Button
+              className="h-11 w-full rounded-xl bg-emerald-500 text-black hover:bg-emerald-400"
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Please wait..."
+                : mode === "login"
+                ? "Login"
+                : mode === "signup"
+                ? "Sign up"
+                : "Verify"}
+            </Button>
+          </form>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between text-sm text-white/60">
+            {mode === "verify" ? (
+              <>
+                <button
+                  type="button"
+                  className="text-emerald-300 hover:text-emerald-200"
+                  onClick={onResend}
+                >
+                  Resend code
+                </button>
+                <button
+                  type="button"
+                  className="text-white/70 hover:text-white"
+                  onClick={() => setMode("login")}
+                >
+                  Back to login
+                </button>
+              </>
+            ) : mode === "login" ? (
+              <>
+                <span>New here?</span>
+                <button
+                  type="button"
+                  className="text-emerald-300 hover:text-emerald-200"
+                  onClick={() => setMode("signup")}
+                >
+                  Create account
+                </button>
+              </>
+            ) : (
+              <>
+                <span>Already have an account?</span>
+                <button
+                  type="button"
+                  className="text-emerald-300 hover:text-emerald-200"
+                  onClick={() => setMode("login")}
+                >
+                  Login
+                </button>
+              </>
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: 24,
-    background: "#0b1220",
-  },
-  card: {
-    width: "100%",
-    maxWidth: 420,
-    background: "white",
-    borderRadius: 16,
-    padding: 24,
-    boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-  },
-  title: { fontSize: 28, margin: 0 },
-  subtitle: { marginTop: 8, marginBottom: 20, color: "#475569" },
-  form: { display: "grid", gap: 12 },
-  label: { display: "grid", gap: 6, fontSize: 14, color: "#0f172a" },
-  input: {
-    border: "1px solid #e2e8f0",
-    borderRadius: 10,
-    padding: "10px 12px",
-    outline: "none",
-    fontSize: 14,
-  },
-  error: {
-    background: "#fee2e2",
-    color: "#991b1b",
-    padding: "10px 12px",
-    borderRadius: 10,
-    fontSize: 14,
-  },
-  button: {
-    marginTop: 6,
-    border: "none",
-    borderRadius: 12,
-    padding: "12px 14px",
-    fontSize: 15,
-    cursor: "pointer",
-    background: "#2563eb",
-    color: "white",
-    fontWeight: 600,
-  },
-  footer: { marginTop: 16, fontSize: 14, color: "#334155" },
-  linkBtn: {
-    border: "none",
-    background: "transparent",
-    color: "#2563eb",
-    cursor: "pointer",
-    padding: 0,
-    fontSize: 14,
-    fontWeight: 600,
-  },
 }

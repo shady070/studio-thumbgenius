@@ -65,7 +65,24 @@ export function MessageList({
               {m.status === "generating" ? (
                 <GeneratingCard progress={m.progress} />
               ) : m.kind === "titles" ? (
-                <TitleResults titles={m.titles} />
+                <TitleResults
+                  titles={
+                    m.titles ??
+                    (() => {
+                      if (typeof m.text !== "string") return []
+                      try {
+                        const parsed = JSON.parse(m.text)
+                        if (!Array.isArray(parsed)) return []
+                        return parsed.map((t: any, i: number) => ({
+                          id: `${m.id}_${i}`,
+                          text: typeof t === "string" ? t : t?.text ?? "",
+                        }))
+                      } catch {
+                        return []
+                      }
+                    })()
+                  }
+                />
               ) : m.kind === "analysis" ? (
                 <Card className="bg-white/5 text-sm text-white/80 ring-1 ring-white/10">
                   <div className="space-y-3 p-4">

@@ -14,8 +14,8 @@ const sampleImages = [
   "1-01 (10).png",
   "1-01 (11).png",
   "1-01 (12).png",
-  "test-02.png",
-  "test-01.png",
+  "test-2.png",
+  "test-1.png",
   "test.png",
 ]
 

@@ -96,7 +96,7 @@ export default function LandingPage() {
             The shortcut to <span className="text-emerald-400">high-click</span> thumbnails.
           </h1>
           <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">
-            Analyze, fix, and remake YouTube thumbnails with face-perfect personas, OCR-aware text, and DashScope edits.
+            Analyze, fix, and remake YouTube thumbnails with face-perfect personas, OCR-aware text, and edits.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link

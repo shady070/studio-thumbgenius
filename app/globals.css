@@ -148,3 +148,12 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.18) transparent;
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

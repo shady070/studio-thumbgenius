@@ -205,52 +205,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <section id="gallery" className="relative bg-[#050709] px-4 py-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-emerald-300">Gallery</p>
-              <h2 className="text-3xl font-semibold">Latest community thumbnails</h2>
-              <p className="mt-2 max-w-2xl text-white/65">
-                Fresh renders from the ThumbGenius pipeline. Updated as creators ship new designs.
-              </p>
-            </div>
-            <Link href="/gallery" className="text-emerald-300 hover:text-emerald-200">
-              View full gallery &rarr;
-            </Link>
-          </div>
-          {galleryError ? (
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
-              {galleryError}
-            </div>
-          ) : null}
-          {!galleryError && galleryItems.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-6 text-sm text-white/70">
-              No recent renders yet. Check back soon.
-            </div>
-          ) : (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {galleryItems.map((img, idx) => (
-                <div
-                  key={`${img.name}-${idx}`}
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-black/30"
-                >
-                  <Image
-                    src={img.url}
-                    alt={galleryAlt(img.name, `sample ${idx + 1}`)}
-                    width={640}
-                    height={360}
-                    quality={70}
-                    loading="lazy"
-                    sizes="(max-width: 768px) 90vw, 320px"
-                    className="h-44 w-full object-contain"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
 
       <section id="workflow" className="relative bg-[#050709] px-4 py-16">
         <div className="mx-auto max-w-6xl">

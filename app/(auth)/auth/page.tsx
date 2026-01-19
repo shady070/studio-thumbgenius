@@ -153,7 +153,7 @@ export default function AuthPage() {
               {mode === "login"
                 ? "Sign in to continue to the studio."
                 : mode === "signup"
-                ? "Start your free trial once your email is verified."
+                ? "Get 100 free credits once your email is verified."
                 : "Enter the 6-digit code we sent to your inbox."}
             </p>
           </div>

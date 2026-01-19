@@ -10,8 +10,8 @@ export function AccountPage() {
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
   const [entitlement, setEntitlement] = React.useState<any>(undefined)
   const [entLoaded, setEntLoaded] = React.useState(false)
+  const [userCredits, setUserCredits] = React.useState<number | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const [autoStarted, setAutoStarted] = React.useState(false)
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
 
   React.useEffect(() => {
@@ -26,6 +26,16 @@ export function AccountPage() {
         setEntitlement(undefined)
       })
       .finally(() => setEntLoaded(true))
+  }, [])
+
+  React.useEffect(() => {
+    fetch(`/api/auth/me`, { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json()
+        if (typeof data?.creditsLeft === "number") setUserCredits(data.creditsLeft)
+      })
+      .catch(() => {})
   }, [])
 
   const startCheckout = async (targetVariant?: string) => {
@@ -52,18 +62,12 @@ export function AccountPage() {
     }
   }
 
-  // Auto-open checkout on first visit when no entitlement exists
-  React.useEffect(() => {
-    if (!autoStarted && entLoaded && entitlement === null) {
-      setAutoStarted(true)
-      startCheckout().catch(() => {})
-    }
-  }, [autoStarted, entitlement, entLoaded])
-
   const plan = entitlement?.plan || "Free"
   const status = entitlement?.status || "active"
-  const inTrial = plan.toLowerCase() === "trial"
-  const creditsLeft = entitlement?.creditsLeft
+  const creditsLeft =
+    typeof entitlement?.creditsLeft === "number"
+      ? entitlement.creditsLeft
+      : userCredits
   const renewsAt = entitlement?.renewsAt ? new Date(entitlement.renewsAt).toDateString() : null
 
   return (
@@ -112,8 +116,8 @@ export function AccountPage() {
                   variant="secondary"
                   className="rounded-full bg-white/10 text-white hover:bg-white/20 disabled:cursor-not-allowed"
                   onClick={() => startCheckout(topupVariantId)}
-                  disabled={loading || !topupVariantId || inTrial}
-                  title={inTrial ? "Buy credits is available after trial ends" : "Buy credits"}
+                  disabled={loading || !topupVariantId}
+                  title="Buy credits"
                 >
                   Buy credits
                 </Button>

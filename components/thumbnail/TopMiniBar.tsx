@@ -9,7 +9,6 @@ type Entitlement = {
 
 export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
   const topupVariantId = process.env.NEXT_PUBLIC_LS_TOPUP_VARIANT_ID || ""
-  const paidVariantId = process.env.NEXT_PUBLIC_LS_PAID_VARIANT_ID || ""
   const [entitlement, setEntitlement] = React.useState<Entitlement | null>(null)
   const [busy, setBusy] = React.useState(false)
 
@@ -37,14 +36,8 @@ export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
     }
   }
 
-  const endTrialAndPay = async () => {
-    await startCheckout(paidVariantId)
-  }
-
-  const plan = entitlement?.plan || "Free Trial"
+  const plan = entitlement?.plan || "Free"
   const status = entitlement?.status || "active"
-  const showEndTrial = plan?.toLowerCase?.() === "trial"
-  const buyDisabled = showEndTrial
 
   return (
     <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -55,21 +48,11 @@ export function TopMiniBar({ creditsLeft }: { creditsLeft: number }) {
 
       <div className="flex items-center gap-2 text-xs text-white/60">
         <span className="font-semibold text-white">{creditsLeft}</span> credits left
-        {showEndTrial ? (
-          <button
-            className="rounded-full bg-white/10 px-2 py-1 text-[11px] text-white hover:bg-white/20 disabled:opacity-60"
-            onClick={endTrialAndPay}
-            disabled={busy}
-            title="End trial and start paid plan (payment via Lemon)"
-          >
-            End trial & pay now
-          </button>
-        ) : null}
         <button
           className="rounded-full bg-emerald-500 px-2 py-1 text-[11px] font-semibold text-black hover:bg-emerald-400 disabled:opacity-60"
           onClick={() => startCheckout(topupVariantId)}
-          disabled={busy || !topupVariantId || buyDisabled}
-          title={buyDisabled ? "Buy credits is available after trial ends" : "Buy credits"}
+          disabled={busy || !topupVariantId}
+          title="Buy credits"
         >
           Buy credits
         </button>

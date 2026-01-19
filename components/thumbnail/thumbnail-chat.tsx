@@ -14,6 +14,7 @@ import { TopMiniBar } from "./TopMiniBar"
 import { EmptyState, EditEmptyState, TitleEmptyState } from "./EmptyStates"
 import { Composer } from "./Composer"
 import { MessageList } from "./MessageList"
+import { PickerChipPersona } from "./Pickers"
 
 import { CREDITS, ChatMsg, Mode, Persona, Style } from "./types"
 import { uid } from "./fakeJobs"
@@ -543,6 +544,12 @@ export function ThumbnailChat() {
                 />
               </div>
               <div className="space-y-1">
+                <label className="text-xs text-white/60">Persona (optional)</label>
+                <div className="flex">
+                  <PickerChipPersona value={persona} onChange={setPersona} />
+                </div>
+              </div>
+              <div className="space-y-1">
                 <label className="text-xs text-white/60">Or upload image</label>
                 <Button
                   variant="outline"
@@ -555,23 +562,20 @@ export function ThumbnailChat() {
                   {remakeImageName || "Choose image"}
                 </Button>
               </div>
-              <p className="text-xs text-white/50">
-                Remake uses persona selection from Prompt mode. Leave YouTube URL empty if using the uploaded image.
-              </p>
+              <p className="text-xs text-white/50">Leave YouTube URL empty if using the uploaded image.</p>
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" onClick={() => setRemakeOpen(false)} className="text-white/70">
                   Cancel
                 </Button>
                 <Button
                   onClick={async () => {
+                    setRemakeOpen(false)
                     if (remakeYoutube.trim()) {
                       await doRemakeYoutube(remakeYoutube)
-                      setRemakeOpen(false)
                       return
                     }
                     if (remakeImageDataUrl.current) {
                       await doRemakeWithImage(remakeImageDataUrl.current)
-                      setRemakeOpen(false)
                       return
                     }
                     pushError("Add a YouTube URL or upload an image.")

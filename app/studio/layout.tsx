@@ -18,11 +18,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         const meRes = await fetch("/api/auth/me", { credentials: "include" })
         if (!meRes.ok) return router.replace("/auth")
         const entRes = await fetch("/api/billing/entitlement", { credentials: "include" })
-        if (!entRes.ok) return router.replace("/account")
+        if (!entRes.ok) return setReady(true)
         const entJson = await entRes.json().catch(() => ({}))
         const ent = entJson?.entitlement
         const blocked = ["canceled", "expired", "unpaid", "past_due"]
-        const active = ent && !blocked.includes((ent.status || "").toLowerCase())
+        const active = !ent || !blocked.includes((ent.status || "").toLowerCase())
         if (!active) return router.replace("/account")
         setReady(true)
       } catch {

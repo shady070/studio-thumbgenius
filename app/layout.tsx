@@ -1,3 +1,5 @@
+// app/layout.tsx (or app/(root)/layout.tsx depending on your structure)
+
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import Script from "next/script"
@@ -15,64 +17,85 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thumbgenius.art"),
+
+  // Stronger, keyword-forward titles (primary query first)
   title: {
-    default: "ThumbGenius – AI YouTube Thumbnail Maker for High-CTR Videos",
-    template: "%s | ThumbGenius – AI YouTube Thumbnail Maker",
+    default: "Free AI YouTube Thumbnail Maker | Create High-CTR Thumbnails Fast",
+    template: "%s | Free AI YouTube Thumbnail Maker",
   },
+
+  // More search-intent aligned description (CTR + speed + no Photoshop)
   description:
-    "ThumbGenius is an AI thumbnail maker for YouTube creators. Generate, edit, and combine thumbnails in seconds to boost CTR and views—no Photoshop required.",
+    "Free AI YouTube thumbnail maker to create viral, high-CTR thumbnails in seconds. Generate, edit, and remix thumbnails without Photoshop. Built for creators to boost clicks and views.",
+
   applicationName: "ThumbGenius",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
+
+  // Expanded keyword set with long-tail targets (helps relevance + topical coverage)
   keywords: [
-    "YouTube thumbnail",
-    "AI thumbnail maker",
-    "YouTube thumbnail creator",
-    "YouTube thumbnail generator",
-    "AI YouTube thumbnails",
-    "create YouTube thumbnail",
+    "free thumbnail maker",
+    "free youtube thumbnail maker",
+    "ai youtube thumbnail maker",
+    "youtube thumbnail generator",
+    "ai thumbnail generator",
+    "youtube thumbnail creator",
+    "thumbnail maker online",
+    "best youtube thumbnail maker",
+    "youtube thumbnail maker free",
+    "create youtube thumbnail",
+    "viral youtube thumbnails",
+    "high ctr thumbnails",
     "thumbnail design",
-    "click through rate",
-    "CTR thumbnails",
-    "YouTube growth tools",
+    "no photoshop thumbnail maker",
+    "remix youtube thumbnails",
+    "youtube growth tools",
     "content creator tools",
-    "ThumbGenius",
+    "thumbgenius",
   ],
+
   authors: [{ name: "ThumbGenius", url: "https://thumbgenius.art" }],
   creator: "ThumbGenius",
   publisher: "ThumbGenius",
   category: "technology",
+
   alternates: {
-    canonical: "https://thumbgenius.art",
+    canonical: "https://thumbgenius.art/",
   },
+
+  // OpenGraph tuned for high CTR shares + brand query reinforcement
   openGraph: {
     type: "website",
-    url: "https://thumbgenius.art",
-    title: "ThumbGenius – AI YouTube Thumbnail Maker for High-CTR Videos",
+    url: "https://thumbgenius.art/",
+    title: "Free AI YouTube Thumbnail Maker | ThumbGenius",
     description:
-      "Design scroll-stopping YouTube thumbnails in under 60 seconds. Generate from text, edit existing thumbnails, and combine images using AI.",
+      "Create scroll-stopping YouTube thumbnails in under 60 seconds. Generate from text, edit existing thumbnails, and remix designs with AI—no Photoshop.",
     siteName: "ThumbGenius",
     images: [
       {
         url: "/og-thumbgenius.png",
         width: 1200,
         height: 630,
-        alt: "ThumbGenius – AI YouTube Thumbnail Maker",
+        alt: "ThumbGenius - Free AI YouTube Thumbnail Maker",
       },
     ],
   },
+
+  // Twitter tuned similarly
   twitter: {
     card: "summary_large_image",
-    title: "ThumbGenius – AI YouTube Thumbnail Maker for Creators",
+    title: "Free AI YouTube Thumbnail Maker | ThumbGenius",
     description:
-      "AI-powered YouTube thumbnail creation. Generate, edit, and combine thumbnails fast to increase your video clicks.",
+      "Generate, edit, and remix YouTube thumbnails with AI to boost CTR and views. Fast, free, and made for creators.",
     images: ["/og-thumbgenius.png"],
   },
+
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+
   robots: {
     index: true,
     follow: true,
@@ -91,26 +114,63 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Stronger structured data: WebApplication + SoftwareApplication
+  // NOTE: Keep "free" message aligned with your actual offering to avoid trust issues.
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "ThumbGenius",
-    url: "https://thumbgenius.art",
-    applicationCategory: "Multimedia",
-    operatingSystem: "Any",
-    description:
-      "ThumbGenius is an AI YouTube thumbnail maker that helps creators generate, edit, and combine thumbnails in seconds.",
-    offers: {
-      "@type": "Offer",
-      price: "9.99",
-      priceCurrency: "USD",
-      description: "Monthly plan with 500 credits and full feature access.",
-    },
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: "ThumbGenius",
+        url: "https://thumbgenius.art/",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://thumbgenius.art/search?q={search_term_string}",
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "WebPage",
+        name: "Free AI YouTube Thumbnail Maker | ThumbGenius",
+        url: "https://thumbgenius.art/",
+        description:
+          "Free AI YouTube thumbnail maker to create viral, high-CTR thumbnails in seconds. Generate, edit, and remix thumbnails without Photoshop.",
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "ThumbGenius",
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "Any",
+        url: "https://thumbgenius.art/",
+        description:
+          "ThumbGenius is an AI YouTube thumbnail maker that helps creators generate, edit, and remix thumbnails in seconds to improve CTR.",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          category: "Free",
+          description:
+            "Free thumbnail generation and editing options available. Upgrade for more credits and advanced features.",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://thumbgenius.art/",
+          },
+        ],
+      },
+    ],
   }
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* GA4 */}
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-RTXEP82G56"
@@ -121,13 +181,20 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){window.dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-RTXEP82G56');
+            gtag('config', 'G-RTXEP82G56', {
+              page_path: window.location.pathname,
+            });
           `}
         </Script>
-        <script
+
+        {/* JSON-LD structured data */}
+        <Script
+          id="jsonld"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+
         {children}
       </body>
     </html>

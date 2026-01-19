@@ -146,6 +146,7 @@ export default async function LandingPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">
             Analyze, fix, and remake YouTube thumbnails with face-perfect personas, OCR-aware text, and edits.
+            Start with 100 free credits. No credit card required.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -303,7 +304,7 @@ export default async function LandingPage() {
       <section id="pricing" className="relative bg-[#050709] px-4 py-16">
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-xs uppercase tracking-widest text-emerald-300">Pricing</p>
-          <h3 className="text-3xl font-semibold text-white">Start with a free trial, scale when you are ready</h3>
+          <h3 className="text-3xl font-semibold text-white">Start free with 100 credits. Upgrade when you are ready.</h3>
           <div className="mt-10 grid gap-4 md:grid-cols-1">
             {plans.map((plan, idx) => (
               <div
@@ -338,7 +339,7 @@ export default async function LandingPage() {
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
           <h4 className="text-3xl font-semibold text-white">Ship thumbnails that get clicked.</h4>
           <p className="max-w-2xl text-sm text-white/70">
-            Personas for face-perfect swaps, DashScope edits, OCR-aware text rewriting, and credits that stay in sync.
+            Start without a credit card, get 100 free credits, and try the full workflow before you upgrade.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link

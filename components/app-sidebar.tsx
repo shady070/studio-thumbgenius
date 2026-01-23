@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Pencil, Trash2, MoreVertical, MessageSquarePlus, Search, UserCircle } from "lucide-react"
+import { Pencil, Trash2, MoreVertical, MessageSquarePlus, Search, UserCircle, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChatStore } from "@/components/chat/ChatStore"
 
@@ -181,6 +181,13 @@ export function AppSidebar() {
           >
             <UserCircle className="h-5 w-5" />
             Account & Billing
+          </Link>
+          <Link
+            href="/admin"
+            className="mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10 ring-1 ring-white/10"
+          >
+            <Shield className="h-5 w-5" />
+            Admin Dashboard
           </Link>
         </SidebarFooter>
       </Sidebar>
